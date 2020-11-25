@@ -10,7 +10,6 @@ from ndlib.models.compartments.NodeStochastic import NodeStochastic
 
 ### Constants
 PATH_RESULT="result/"
-
 S_CONS = "Susceptible"
 I_CONS = "Infected"
 R_CONS = "Removed"
@@ -49,6 +48,9 @@ def epidemicSimulation(model, iteration):
     trends = model.build_trends(iterations)
 
     return iterations, trends 
+
+def multEpidemicSimulation(model, n_execution, n_iteration, infection_sets, n_processes):
+    return multi_runs(model, execution_number=n_execution, iteration_number=n_iteration, infection_sets=infection_sets, nprocesses=n_processes)
 
 def view(model, trends):
     #Visualizacao
@@ -92,21 +94,28 @@ def findCommunities(g):
     print("The network has", len(communities), "communities.")
 
 if __name__ == "__main__":
-    #init variable
+    #boot variables
+    mult_executions = True
     beta = 0.02
     gamma = 0.01
     fraction_infected = 0.1
-    n_iterations = 200 #iterations
+    n_iterations = 200 #iterations at model
 
     # Generate spatial network with communities
     g = generateSpatialGraph()
     
     #findCommunities(g)
     model = configureModel(g, beta, gamma, fraction_infected)
-
-    iterations, trends = epidemicSimulation(model, n_iterations)
+    trends = None
+    if mult_executions:
+        n_execution = 10
+        infection_sets = None
+        n_processes = 1
+        trends = multEpidemicSimulation(model, n_execution, n_iterations, infection_sets, n_processes)
+    else:
+        iterations, trends = epidemicSimulation(model, n_iterations)    
+        #viewGif(g, iterations, I_CONS)
     
     view(model, trends)
-    #viewGif(g, iterations, I_CONS)
-    
+    print("Simulation completed.")
     pass
