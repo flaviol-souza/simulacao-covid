@@ -16,9 +16,7 @@ R_CONS = "Removed"
 
 def configureModel(g, beta, gamma, fraction_infected):
     # Composite Model instantiation
-    #model = DynamicCompositeModel(g)
     model = gc.CompositeModel(g)
-    #model = ContinuousModel(g)
 
     # Model statuses
     model.add_status(S_CONS)
@@ -41,10 +39,7 @@ def configureModel(g, beta, gamma, fraction_infected):
     return model
 
 def epidemicSimulation(model, iteration):
-    # Simulation execution
     iterations = model.iteration_bunch(iteration)
-    #model.visualize(iterations)
-    #iterations = model.iteration_bunch(iteration, node_status=False)
     trends = model.build_trends(iterations)
 
     return iterations, trends 
@@ -53,39 +48,9 @@ def multEpidemicSimulation(model, n_execution, n_iteration, infection_sets, n_pr
     return multi_runs(model, execution_number=n_execution, iteration_number=n_iteration, infection_sets=infection_sets, nprocesses=n_processes)
 
 def view(model, trends):
-    #Visualizacao
     viz = DiffusionTrend(model, trends)
     viz.plot(PATH_RESULT+"diffusion.pdf", percentile=90)
 
-def viewGif(g, iterations, variable):
-    C_model = ContinuousModel(g)
-    model.add_status(S_CONS)
-    model.add_status(I_CONS)
-    model.add_status(R_CONS)
-
-    # Compartment definition
-    c1 = NodeStochastic(0.02, triggering_status=I_CONS)
-    c2 = NodeStochastic(0.01)
-
-    # Rule definition
-    model.add_rule(S_CONS, I_CONS, c1)
-    model.add_rule(I_CONS, R_CONS, c2)
-
-    # Visualization config
-    visualization_config = {
-        'plot_interval': 5,
-        'plot_variable': variable,
-        'variable_limits': {
-            variable: [0, 0.8]
-        },
-        'show_plot': True,
-        'plot_output': PATH_RESULT+'/model_animation.gif',
-        'plot_title': 'Animated network',
-    }
-
-    C_model.configure_visualization(visualization_config)
-    i = C_model.iteration_bunch(200)
-    C_model.visualize(i)
 
 def findCommunities(g):
     # Find the communities
@@ -114,7 +79,6 @@ if __name__ == "__main__":
         trends = multEpidemicSimulation(model, n_execution, n_iterations, infection_sets, n_processes)
     else:
         iterations, trends = epidemicSimulation(model, n_iterations)    
-        #viewGif(g, iterations, I_CONS)
     
     view(model, trends)
     print("Simulation completed.")
