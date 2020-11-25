@@ -8,6 +8,9 @@ from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
 from ndlib.models.ContinuousModel import ContinuousModel
 from ndlib.models.compartments.NodeStochastic import NodeStochastic
 
+### Constants
+PATH_RESULT="result/"
+
 S_CONS = "Susceptible"
 I_CONS = "Infected"
 R_CONS = "Removed"
@@ -50,7 +53,37 @@ def epidemicSimulation(model, iteration):
 def view(model, trends):
     #Visualizacao
     viz = DiffusionTrend(model, trends)
-    viz.plot("result/diffusion.pdf", percentile=90)
+    viz.plot(PATH_RESULT+"diffusion.pdf", percentile=90)
+
+def viewGif(g, iterations, variable):
+    C_model = ContinuousModel(g)
+    model.add_status(S_CONS)
+    model.add_status(I_CONS)
+    model.add_status(R_CONS)
+
+    # Compartment definition
+    c1 = NodeStochastic(0.02, triggering_status=I_CONS)
+    c2 = NodeStochastic(0.01)
+
+    # Rule definition
+    model.add_rule(S_CONS, I_CONS, c1)
+    model.add_rule(I_CONS, R_CONS, c2)
+
+    # Visualization config
+    visualization_config = {
+        'plot_interval': 5,
+        'plot_variable': variable,
+        'variable_limits': {
+            variable: [0, 0.8]
+        },
+        'show_plot': True,
+        'plot_output': PATH_RESULT+'/model_animation.gif',
+        'plot_title': 'Animated network',
+    }
+
+    C_model.configure_visualization(visualization_config)
+    i = C_model.iteration_bunch(200)
+    C_model.visualize(i)
 
 def findCommunities(g):
     # Find the communities
@@ -63,14 +96,17 @@ if __name__ == "__main__":
     beta = 0.02
     gamma = 0.01
     fraction_infected = 0.1
-    iterations = 200 #iterations
+    n_iterations = 200 #iterations
 
     # Generate spatial network with communities
     g = generateSpatialGraph()
     
     #findCommunities(g)
     model = configureModel(g, beta, gamma, fraction_infected)
-    iterations, trends = epidemicSimulation(model, iterations)
+
+    iterations, trends = epidemicSimulation(model, n_iterations)
+    
     view(model, trends)
+    #viewGif(g, iterations, I_CONS)
     
     pass
