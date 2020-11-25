@@ -14,6 +14,12 @@ S_CONS = "Susceptible"
 I_CONS = "Infected"
 R_CONS = "Removed"
 
+initial_status = {
+    S_CONS: 0,
+    I_CONS: 1,
+    R_CONS: 2
+}
+
 def configureModel(g, beta, gamma, fraction_infected):
     # Composite Model instantiation
     #model = DynamicCompositeModel(g)
@@ -38,12 +44,10 @@ def configureModel(g, beta, gamma, fraction_infected):
     config.add_model_parameter('fraction_infected', fraction_infected)
     model.set_initial_status(config)
 
-    return model
+    return model, config
 
 def epidemicSimulation(model, iteration):
-    # Simulation execution
     iterations = model.iteration_bunch(iteration)
-    #model.visualize(iterations)
     #iterations = model.iteration_bunch(iteration, node_status=False)
     trends = model.build_trends(iterations)
 
@@ -53,19 +57,18 @@ def multEpidemicSimulation(model, n_execution, n_iteration, infection_sets, n_pr
     return multi_runs(model, execution_number=n_execution, iteration_number=n_iteration, infection_sets=infection_sets, nprocesses=n_processes)
 
 def view(model, trends):
-    #Visualizacao
     viz = DiffusionTrend(model, trends)
     viz.plot(PATH_RESULT+"diffusion.pdf", percentile=90)
 
-def viewGif(g, iterations, variable):
+def viewGif(g, config, iterations, variable):
     C_model = ContinuousModel(g)
     model.add_status(S_CONS)
     model.add_status(I_CONS)
     model.add_status(R_CONS)
 
     # Compartment definition
-    c1 = NodeStochastic(0.02, triggering_status=I_CONS)
-    c2 = NodeStochastic(0.01)
+    c1 = NodeStochastic(beta, triggering_status=I_CONS)
+    c2 = NodeStochastic(gamma)
 
     # Rule definition
     model.add_rule(S_CONS, I_CONS, c1)
@@ -83,6 +86,7 @@ def viewGif(g, iterations, variable):
         'plot_title': 'Animated network',
     }
 
+    C_model.set_initial_status(initial_status, config)
     C_model.configure_visualization(visualization_config)
     i = C_model.iteration_bunch(200)
     C_model.visualize(i)
@@ -95,7 +99,7 @@ def findCommunities(g):
 
 if __name__ == "__main__":
     #boot variables
-    mult_executions = True
+    mult_executions = False
     beta = 0.02
     gamma = 0.01
     fraction_infected = 0.1
@@ -105,7 +109,7 @@ if __name__ == "__main__":
     g = generateSpatialGraph()
     
     #findCommunities(g)
-    model = configureModel(g, beta, gamma, fraction_infected)
+    model, config = configureModel(g, beta, gamma, fraction_infected)
     trends = None
     if mult_executions:
         n_execution = 10
@@ -114,8 +118,9 @@ if __name__ == "__main__":
         trends = multEpidemicSimulation(model, n_execution, n_iterations, infection_sets, n_processes)
     else:
         iterations, trends = epidemicSimulation(model, n_iterations)    
-        #viewGif(g, iterations, I_CONS)
+        viewGif(g, config, iterations, I_CONS)
     
     view(model, trends)
+
     print("Simulation completed.")
     pass
