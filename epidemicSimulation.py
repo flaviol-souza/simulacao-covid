@@ -57,5 +57,8 @@ def findCommunities(g):
 if __name__ == "__main__":
     # Generate spatial network with communities
     g = generateSpatialGraph()
-    findCommunities(g)
+    model = configureModel(g)
+    iterations, trends = epidemicSimulation(model)
+    visualizacao(model, trends)
+    #findCommunities(g)
     pass
