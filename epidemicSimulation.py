@@ -60,37 +60,6 @@ def view(model, trends):
     viz = DiffusionTrend(model, trends)
     viz.plot(PATH_RESULT+"diffusion.pdf", percentile=90)
 
-def viewGif(g, config, iterations, variable):
-    C_model = ContinuousModel(g)
-    model.add_status(S_CONS)
-    model.add_status(I_CONS)
-    model.add_status(R_CONS)
-
-    # Compartment definition
-    c1 = NodeStochastic(beta, triggering_status=I_CONS)
-    c2 = NodeStochastic(gamma)
-
-    # Rule definition
-    model.add_rule(S_CONS, I_CONS, c1)
-    model.add_rule(I_CONS, R_CONS, c2)
-
-    # Visualization config
-    visualization_config = {
-        'plot_interval': 5,
-        'plot_variable': variable,
-        'variable_limits': {
-            variable: [0, 0.8]
-        },
-        'show_plot': True,
-        'plot_output': PATH_RESULT+'/model_animation.gif',
-        'plot_title': 'Animated network',
-    }
-
-    C_model.set_initial_status(initial_status, config)
-    C_model.configure_visualization(visualization_config)
-    i = C_model.iteration_bunch(200)
-    C_model.visualize(i)
-
 def findCommunities(g):
     # Find the communities
     communities = sorted(nxcom.greedy_modularity_communities(g), key=len, reverse=True)
@@ -118,7 +87,6 @@ if __name__ == "__main__":
         trends = multEpidemicSimulation(model, n_execution, n_iterations, infection_sets, n_processes)
     else:
         iterations, trends = epidemicSimulation(model, n_iterations)    
-        viewGif(g, config, iterations, I_CONS)
     
     view(model, trends)
 
