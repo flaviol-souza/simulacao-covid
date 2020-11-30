@@ -5,6 +5,7 @@ import networkx.algorithms.community as nxcom
 
 from spatialNetwork import *
 from ndlib.utils import multi_runs
+from ndlibCustom.SWIRCustomModel import SWIRCustomModel
 from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
 from ndlib.models.ContinuousModel import ContinuousModel
 from ndlib.models.compartments.NodeStochastic import NodeStochastic
@@ -24,7 +25,7 @@ def update_S(node, graph, status, attributes, constants):
 def update_I(node, graph, status, attributes, constants):
     return status[node][R_CONS] * constants['gamma']
 
-def configureModel(g, beta, gamma, fraction_infected, withContinuousModel):
+def configureModel(g, beta, gamma,  fraction_infected, withContinuousModel, epidemicModel='SIR', mu=0.005):
     constants = {
         'fraction_infected': fraction_infected,
         'beta': beta,
@@ -32,15 +33,18 @@ def configureModel(g, beta, gamma, fraction_infected, withContinuousModel):
     }
 
     # Composite Model instantiation
-    if withContinuousModel:
+    if epidemicModel == 'SWIR' :
+        model = SWIRCustomModel(g)
+    elif withContinuousModel:
         model = ContinuousModel(g, constants=constants)
     else:
         model = gc.CompositeModel(g)
-
-    # Model statuses
-    model.add_status(S_CONS)
-    model.add_status(I_CONS)
-    model.add_status(R_CONS)
+  
+    if epidemicModel == 'SIR' :
+        # Model statuses
+        model.add_status(S_CONS)
+        model.add_status(I_CONS)
+        model.add_status(R_CONS)
 
     # Model initial status configuration
     config = mc.Configuration()
@@ -83,6 +87,13 @@ def configureModel(g, beta, gamma, fraction_infected, withContinuousModel):
             'plot_title': 'Animated network',
         }
         model.configure_visualization(visualization_config)
+    elif type(model) is SWIRCustomModel: #just to SWIRModel
+        config.add_model_parameter('kappa', beta)
+        config.add_model_parameter('mu', mu)
+        config.add_model_parameter('nu', gamma)
+        config.add_model_parameter('gamma', 0.1)
+        config.add_model_parameter("fraction_infected", fraction_infected)
+        model.set_initial_status(config)
 
     return model, config
 
@@ -96,7 +107,7 @@ def multEpidemicSimulation(model, n_execution, n_iteration, infection_sets, n_pr
     return multi_runs(model, execution_number=n_execution, iteration_number=n_iteration, infection_sets=infection_sets, nprocesses=n_processes)
 
 def view(model, trends, iterations=None):
-    if type(model) is gc.CompositeModel:
+    if type(model) is gc.CompositeModel or type(model) is SWIRCustomModel:
         viz = DiffusionTrend(model, trends)
         viz.plot(PATH_RESULT+"diffusion.pdf", percentile=90)
     elif type(model) is ContinuousModel:
@@ -110,18 +121,20 @@ def findCommunities(g):
 
 if __name__ == "__main__":
     #boot variables
-    withContinuousModel = False
+    withContinuousModel = True
     mult_executions = False
-    beta = 0.02
-    gamma = 0.01
-    fraction_infected = 0.1
-    n_iterations = 200 #iterations at model
+    epidemicModel='SWIR' #SIR ou SWIR
+    beta = 0.5 #S->I
+    gamma = 0.3 #W->I
+    mu = 0.9 #S->W
+    fraction_infected = 0.01
+    n_iterations = 40 #iterations at model
 
     # Generate spatial network with communities
     g = generateSpatialGraph()
     
     #findCommunities(g)
-    model, config = configureModel(g, beta, gamma, fraction_infected, withContinuousModel)
+    model, config = configureModel(g, beta, gamma, fraction_infected, withContinuousModel, epidemicModel, mu)
     trends = None
     if mult_executions:
         n_execution = 10
