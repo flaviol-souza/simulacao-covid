@@ -5,12 +5,12 @@ import future
 
 __author__ = "Flavio Souza"
 __license__ = "BSD-2-Clause"
+__email__ = "flavio.souza@ifsp.edu.br"
 
 class SWIRCustomModel(SWIRModel):
 
     def __init__(self, graph, seed=None):
         super(SWIRModel, self).__init__(graph, seed)
-        #SWIRModel().__init__(self, graph, seed)
         self.name = "SWIRCustom"
         self.parameters['model']["gamma"] = {
                                                 "descr": "Removing rate from infection state",
