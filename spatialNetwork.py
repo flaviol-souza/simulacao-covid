@@ -66,6 +66,7 @@ def generateSpatialGraph():
                 city, city_neighborhood)/city['nodes'])
 
     communitySizes = list(map(lambda city: city['nodes'], citiesFullInfo))
+    #Try use the random_geometric_graph model
     return nx.generators.stochastic_block_model(communitySizes, probabilityMatrix, sparse=False, directed=True)
 
 
