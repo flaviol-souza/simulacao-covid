@@ -109,7 +109,10 @@ def multEpidemicSimulation(model, n_execution, n_iteration, infection_sets, n_pr
 def view(model, trends, iterations=None):
     if type(model) is gc.CompositeModel or type(model) is SWIRCustomModel:
         viz = DiffusionTrend(model, trends)
-        viz.plot(PATH_RESULT+"diffusion.pdf", percentile=90)
+        name_file = "diffusion.pdf"
+        if iterations == None:
+            name_file = "mult_"+name_file
+        viz.plot(PATH_RESULT+name_file, percentile=90)
     elif type(model) is ContinuousModel:
         model.visualize(iterations)
 
@@ -122,7 +125,7 @@ def findCommunities(g):
 if __name__ == "__main__":
     #boot variables
     withContinuousModel = True
-    mult_executions = False
+    mult_executions = True
     epidemicModel='SWIR' #SIR ou SWIR
     gamma = 1/14 #I->R
     r0 = 3.07
