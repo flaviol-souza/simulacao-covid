@@ -25,7 +25,7 @@ def update_S(node, graph, status, attributes, constants):
 def update_I(node, graph, status, attributes, constants):
     return status[node][R_CONS] * constants['gamma']
 
-def configureModel(g, beta, gamma,  fraction_infected, withContinuousModel, epidemicModel='SIR', mu=0.005):
+def configureModel(g, beta, gamma,  fraction_infected, withContinuousModel, epidemicModel='SIR', mu=0.005, nu=0.005):
     constants = {
         'fraction_infected': fraction_infected,
         'beta': beta,
@@ -90,8 +90,8 @@ def configureModel(g, beta, gamma,  fraction_infected, withContinuousModel, epid
     elif type(model) is SWIRCustomModel: #just to SWIRModel
         config.add_model_parameter('kappa', beta)
         config.add_model_parameter('mu', mu)
-        config.add_model_parameter('nu', gamma)
-        config.add_model_parameter('gamma', 0.1)
+        config.add_model_parameter('nu', nu)
+        config.add_model_parameter('gamma', gamma)
         config.add_model_parameter("fraction_infected", fraction_infected)
         model.set_initial_status(config)
 
@@ -124,9 +124,15 @@ if __name__ == "__main__":
     withContinuousModel = True
     mult_executions = False
     epidemicModel='SWIR' #SIR ou SWIR
-    beta = 0.5 #S->I
-    gamma = 0.3 #W->I
-    mu = 0.9 #S->W
+    gamma = 1/14 #I->R
+    r0 = 0.88
+    #https://flaviovdf.github.io/covid19/#sudeste
+    kappa = r0 * gamma #S->I
+
+    mu = kappa * 0.15 #S->W
+    nu = mu #W->I
+    
+    
     fraction_infected = 0.01
     n_iterations = 40 #iterations at model
 
@@ -134,7 +140,7 @@ if __name__ == "__main__":
     g = generateSpatialGraph()
     
     #findCommunities(g)
-    model, config = configureModel(g, beta, gamma, fraction_infected, withContinuousModel, epidemicModel, mu)
+    model, config = configureModel(g, kappa, gamma, fraction_infected, withContinuousModel, epidemicModel, mu, nu)
     trends = None
     if mult_executions:
         n_execution = 10

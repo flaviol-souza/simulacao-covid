@@ -12,6 +12,12 @@ class SWIRCustomModel(SWIRModel):
     def __init__(self, graph, seed=None):
         super(SWIRModel, self).__init__(graph, seed)
         self.name = "SWIRCustom"
+        self.available_statuses = {
+            "Susceptible": 0,
+            "Weakened": 2,
+            "Infected": 1,
+            "Removed": 3
+        }
         self.parameters['model']["gamma"] = {
                                                 "descr": "Removing rate from infection state",
                                                 "range": [0, 1],
@@ -41,7 +47,7 @@ class SWIRCustomModel(SWIRModel):
             if self.graph.directed:
                 neighbors = self.graph.predecessors(u)
 
-            if u_status == 1:  # Infected
+            if u_status == 1 or u_status == 2:  # Infected
                 for neighbor in neighbors:
                     if self.status[neighbor] == 0:  # Susceptible
                         if eventp < self.params['model']['kappa']:
