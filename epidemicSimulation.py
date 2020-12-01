@@ -125,7 +125,7 @@ if __name__ == "__main__":
     mult_executions = False
     epidemicModel='SWIR' #SIR ou SWIR
     gamma = 1/14 #I->R
-    r0 = 0.88
+    r0 = 3.07
     #https://flaviovdf.github.io/covid19/#sudeste
     kappa = r0 * gamma #S->I
 
