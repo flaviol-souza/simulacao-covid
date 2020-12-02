@@ -10,7 +10,7 @@ from datasetProcess import getNearCities, MAX_DISTANCE, MAIN_CITY, mainCityCoord
 # How many persons a node represent
 PERSON_PER_NODE = 100
 # Expected degree of connection inside community (porcentage)
-Z_IN = 0.4
+Z_IN = 0.8
 
 # Global variables
 

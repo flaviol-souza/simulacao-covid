@@ -137,7 +137,7 @@ if __name__ == "__main__":
     
     
     fraction_infected = 0.01
-    n_iterations = 40 #iterations at model
+    n_iterations = 30 #iterations at model
 
     # Generate spatial network with communities
     g = generateSpatialGraph()
