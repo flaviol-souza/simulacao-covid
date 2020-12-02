@@ -128,12 +128,12 @@ if __name__ == "__main__":
     mult_executions = True
     epidemicModel='SWIR' #SIR ou SWIR
     gamma = 1/14 #I->R
-    r0 = 3.07
+    r0 = np.random.uniform(2.79, 3.77)
     #https://flaviovdf.github.io/covid19/#sudeste
     kappa = r0 * gamma #S->I
 
-    mu = kappa * 0.15 #S->W
-    nu = mu #W->I
+    mu = np.random.uniform(0.15, 0.2) #S->W
+    nu = gamma #W->I
     
     
     fraction_infected = 0.01
