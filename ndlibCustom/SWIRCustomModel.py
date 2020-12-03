@@ -47,7 +47,7 @@ class SWIRCustomModel(SWIRModel):
             if self.graph.directed:
                 neighbors = self.graph.predecessors(u)
 
-            if u_status == 1 or u_status == 2:  # Infected
+            if u_status == 1 or u_status == 2:  # Infected or Weakened
                 for neighbor in neighbors:
                     if self.status[neighbor] == 0:  # Susceptible
                         if eventp < self.params['model']['kappa']:
@@ -56,9 +56,9 @@ class SWIRCustomModel(SWIRModel):
                             eventp = np.random.random_sample()
                             if eventp < self.params['model']['mu']:
                                 actual_status[neighbor] = 2  # Weakened
-                    elif self.status[neighbor] == 2:  # Weakened
-                        if eventp < self.params['model']['nu']:
-                            actual_status[neighbor] = 1  # Infected
+                    #elif self.status[neighbor] == 2:  # Weakened
+                    #    if eventp < self.params['model']['nu']:
+                    #        actual_status[neighbor] = 1  # Infected
 
                 if eventp < self.params['model']['gamma']:           
                     actual_status[u] = 3  # Removed
