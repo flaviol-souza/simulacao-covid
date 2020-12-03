@@ -127,13 +127,11 @@ if __name__ == "__main__":
     withContinuousModel = True
     mult_executions = True
     epidemicModel='SWIR' #SIR ou SWIR
-    gamma = 1/14 #I->R
+    gamma = 1/14.7 #I->R
     r0 = np.random.uniform(2.79, 3.77)
-    #https://flaviovdf.github.io/covid19/#sudeste
-    kappa = r0 * gamma #S->I
-
-    mu = np.random.uniform(0.15, 0.2) #S->W
-    nu = gamma #W->I
+    beta = r0 * gamma #S->I
+    mi = np.random.uniform(0.15, 0.2) * beta #S->W
+    ni = beta #W->I
     
     
     fraction_infected = 0.01
@@ -143,7 +141,7 @@ if __name__ == "__main__":
     g = generateSpatialGraph()
     
     #findCommunities(g)
-    model, config = configureModel(g, kappa, gamma, fraction_infected, withContinuousModel, epidemicModel, mu, nu)
+    model, config = configureModel(g, beta, gamma, fraction_infected, withContinuousModel, epidemicModel, mi, ni)
     trends = None
     if mult_executions:
         n_execution = 10
