@@ -126,14 +126,13 @@ if __name__ == "__main__":
     #boot variables
     withContinuousModel = True
     mult_executions = True
+    
     epidemicModel='SWIR' #SIR ou SWIR
     gamma = 1/14.7 #I->R
     r0 = np.random.uniform(2.79, 3.77)
     beta = r0 * gamma #S->I
     mi = np.random.uniform(0.15, 0.2) * beta #S->W
     ni = beta #W->I
-    
-    
     fraction_infected = 0.01
     n_iterations = 30 #iterations at model
 
