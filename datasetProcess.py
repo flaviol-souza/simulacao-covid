@@ -65,28 +65,30 @@ def plotCitiesCases(citiesName):
     soma)
 
     x = [dt.datetime.strptime(d,'%Y-%m-%d').date() for d in mainCityCasesDf.date]
+    dates = list(mainCityCasesDf.date)
     y = list(mainCityCasesDf.cases)
-    print(len(y))
+
+    # print('dates',dates)
+    # print('y',y)
 
     for cityName in citiesName:
         if cityName != MAIN_CITY:
             cityCasesDf = citiesCasesDf[citiesCasesDf["name"] == cityName]
-            k = list(cityCasesDf.cases)
-            for p in range(len(y)):
-                y[p] += k[p]
-    print(len(y))
-    print(len(x))
+            for dateIndex in range(len(dates)):
+                y[dateIndex]+=cityCasesDf[cityCasesDf['date']==dates[dateIndex]].cases.values[0]
+    # print(len(y))
+    # print(len(x))
 
     for p in range(len(y)):
         y[p]/=soma
     
-    # df = pd.pivot_table( citiesCasesDf, columns= 'name' , index = {'date':'Data'}, values= 'cases')
-    # df = df.loc[:,citiesName].sum(axis =1)
+    # # df = pd.pivot_table( citiesCasesDf, columns= 'name' , index = {'date':'Data'}, values= 'cases')
+    # # df = df.loc[:,citiesName].sum(axis =1)
 
-    # plt.title("Casos confirmados de COVID na região")
-    # plt.ylabel("Casos")
-    # plt.xlabel("Data")
-    # df.rename( index={'date': 'Data'}).plot()
+    # # plt.title("Casos confirmados de COVID na região")
+    # # plt.ylabel("Casos")
+    # # plt.xlabel("Data")
+    # # df.rename( index={'date': 'Data'}).plot()
 
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=15))
