@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 import pandas as pd
 import networkx as nx
+import matplotlib.pyplot as plt
 from functools import reduce
 import geopy.distance as distanceCoordinates
 
-from datasetProcess import getNearCities, MAX_DISTANCE, MAIN_CITY, mainCityCoordinate
+from datasetProcess import getNearCities, MAX_DISTANCE, MAIN_CITY, mainCityCoordinate, plotCitiesCases
 
 # Constants
 # How many persons a node represent
@@ -69,8 +70,32 @@ def generateSpatialGraph():
     #Try use the random_geometric_graph model
     return nx.generators.stochastic_block_model(communitySizes, probabilityMatrix, sparse=False, directed=True)
 
+def plotDegreeDistribution(graph):
+
+    nodeDegree = graph.degree() # dictionary node:degree
+    degree = [x[1] for x in nodeDegree]
+    value = {}
+    for i in degree:
+        value[i] = degree.count(i)
+
+    plt.figure()
+    plt.grid(True)
+    plt.plot(value.values(), '-')
+    plt.xlabel('Grau')
+    plt.ylabel('Quantidade de vértices')
+    plt.title('Distribuição de Graus')
+    plt.show()
+
+def confirmedCasesInCitiesOfGraph():
+    cities = getNearCities().values.tolist()
+    citiesName = list(map(lambda cityinfo: cityinfo['name'],filter(lambda notNone: notNone,
+                                 map(getFullCityInfo, cities))))
+    print(len(citiesName))
+    plotCitiesCases(citiesName)
+
 
 if __name__ == "__main__":
     # Generate spatial network with communities
-    generateSpatialGraph()
+    #plotDegreeDistribution(generateSpatialGraph())
+    confirmedCasesInCitiesOfGraph()
     pass
